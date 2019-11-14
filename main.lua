@@ -4,53 +4,48 @@
 --
 -----------------------------------------------------------------------------------------
 
-centerX = display.contentWidth / 2
-centerY = display.contentHeight / 2
-withScrn = display.contentWidth
-heightScrn = display.contentHeight
-topScrn = display.screenOriginY
-leftScrn = display.screenOriginX
--- defintion of the background
-backgroundfill = display.newRect(leftScrn, topScrn, withScrn, heightScrn)
--- only the splash screen has a white background
-backgroundfill:setFillColor(255,255,255)
- 
- 
-local options=
-	{
-		text="Sponsorowane przez PŁ",
-		x=163,
-		y=395,
-		font=native.systemFontBold,
-		fontSize=25
-}
- 
-local storyboard = require ("storyboard")
-storyboard.purgeOnSceneChange = true
- 
-local splash = display.newImage ("polibuda.png")
-splash.x = centerX
-splash.y = centerY
+_W=display.viewableContentWidth
+_H=display.viewableContentHeight
 
-local function loadText()
-	
-	local myText = display.newText( options )
-	myText:setTextColor( 255, 0, 0 )
+local background = display.newRect(140,180,_W,_H)
+background:setFillColor(255,255,255)
+
+local font="HelveticaNeue";
+
+local status = display.newText("Press to Play",0,0,font,20);
+status:setTextColor(0,0,0);
+status.x=_W*0.5;
+status.y=100;
+status.status="waiting"
+
+local soundFile = audio.loadSound("02 - Necropolis.mp3");
+
+function status:tap(e)
+	if(self.status=="waiting") then
+		audio.play(soundFile,{
+			channel=1,
+			loops=2,
+			fadein=500,
+			onComplete=function(e)
+				audio.dispose(e.handle);
+				e.handle=nil;
+				
+				self.status="playing";
+				self.text="Sound unloaded";
+			end
+		});
+		
+		self.status="playing";
+		self.text="Playing";
+	elseif(self.status=="playing") then
+		audio.pause(1);
+		self.status="paused";
+		self.text="Paused";
+	elseif(self.status=="paused") then
+		audio.resume(1);
+		self.status="playing";
+		self.text="Playing";
+	end
 end
- 
-local function endSplash ()
- 
-	splash:removeSelf()
-	splash = nil
- 
-	-- set default background color for the game
-	gradient = graphics.newGradient(
- 	{ 80, 211, 255 },
-  	{80, 100, 180 },
-  	"up" )
-  	
-	storyboard.gotoScene ( "menu", { effect = "zoomOutIn"} )
-end 
 
-timer.performWithDelay(2000,loadText,1) 
-timer.performWithDelay(5000, endSplash)
+status:addEventListener("tap",status);
