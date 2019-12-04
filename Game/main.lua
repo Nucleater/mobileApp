@@ -3,12 +3,38 @@
 -- main.lua
 --
 -----------------------------------------------------------------------------------------
+local composer = require( "composer" )
+local scene = composer.newScene()
 
--- hide the status bar
-display.setStatusBar( display.TranslucentStatusBar )
+ 
+local options=
+	{
+		text="Sponsorowane przez PŁ",
+		x=800,
+		y=800,
+		font=native.systemFontBold,
+		fontSize=15
+}
 
--- include the Corona "composer" module
-local composer = require "composer"
+ 
+local splash=display.newImageRect( "Images/spplash.jpg", display.contentWidth, display.contentHeight)
+splash.x = display.contentWidth / 2
+splash.y = display.contentHeight / 2
 
--- load menu screen
-composer.gotoScene( "menu" )
+local myText=nil
+
+local function loadText()	
+	myText = display.newText( options )
+	myText:setTextColor( 240, 0, 0 )
+end
+
+ 
+local function endSplash ()
+	splash:removeSelf()
+	splash = nil
+	myText:removeSelf()
+	composer.gotoScene( "menu", "fade", 1000 )
+end 
+
+timer.performWithDelay(1000,loadText) 
+timer.performWithDelay(2000,endSplash)
